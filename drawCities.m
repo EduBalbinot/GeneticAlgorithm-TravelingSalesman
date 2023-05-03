@@ -1,6 +1,8 @@
 function drawCities(xc, yc, CITY_SIZE, i, X_MAX, Y_MAX, NUMBER_SIZE)
     cityRadius= CITY_SIZE/2;        
-    eval(strjoin(["img_city" i "= imread('resources/Town_" randi([1 numel(dir(fullfile('Resources', '*.*')))-2]) ".png','BackgroundColor',[0.8 0.8 0.8]);"],''));
+    eval(strjoin(["img_city" i "= imread('resources/Town_" ...
+        randi([1 numel(dir(fullfile('Resources', '*.*')))-2])...
+        ".png','BackgroundColor',[0.8 0.8 0.8]);"],''));
     x1 = xc - cityRadius;
     x2 = xc + cityRadius;
     y1 = yc - cityRadius;

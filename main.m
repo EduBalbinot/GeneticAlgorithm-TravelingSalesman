@@ -1,17 +1,28 @@
 %traveling salesman problem
-clear, clc
-
-%screen
-X_MAX = 2000;
-Y_MAX = 1000;
+clear, close, clc
 
 %configs
-N_POP = 100;
-N_CITIES = 30;
-MAX_NOREPEAT = 1000;
-MUTATION_CHANCE = 0.2;
+N_POP = 1000;
 
+%convergence
+MAX_NOREPEAT = 500;
+MAX_GENERATION = 1000;
 
+%random city
+RANDOM_ENABLE = false;
+X_MAX = 2000;
+Y_MAX = 1000;
+N_CITIES = 100;
+
+%set city
+CITY = 'berlin52';
+
+%mutation
+MUTATION_CHANCE = 0.05;
+ANNEALING_ENABLE = true;
+ANNEALING_TEMPERATURE = 1;
+ANNEALING_COOLING_RATE = 0.95;
+ANNEALING_STOP_CRITERION = 1e-6;
 
 %setup
 CITY_SIZE = floor(X_MAX/N_CITIES);
@@ -20,29 +31,28 @@ if NUMBER_SIZE<7; NUMBER_SIZE=7; end
 generation = 0;
 fitnessTotal = 0; 
 fitnnesAverage = 0;
-bestDistanceGraph = [0 0];
 noChangeCounter = 0;
 lastBest = 0;
 
-%Berlin52
+if RANDOM_ENABLE; cities = createCities(N_CITIES, Y_MAX, X_MAX, CITY_SIZE, NUMBER_SIZE);
+else; [cities, N_CITIES, Y_MAX] = test(CITY); end
 
-[cities, N_CITIES, Y_MAX] = berlin52();
+% population = createInitialPopulation(N_POP, N_CITIES);
+population = createImprovedInitialPopulation(cities, N_POP, N_CITIES);
 
-% cities = createCities(N_CITIES, Y_MAX, X_MAX, CITY_SIZE, NUMBER_SIZE);
-population = createInitialPopulation(N_POP, N_CITIES);
+[population, totalFitness, averageFitness] = calculateDistance(population, cities);
 
-[population, totalDistance, averageDistance] = calculateDistance(population, cities);
-
-while noChangeCounter<MAX_NOREPEAT
-    cumulativeProportions = getCumulativeProportions(population, totalDistance);
-    
+while generation<MAX_GENERATION || noChangeCounter<MAX_NOREPEAT
+    cumulativeProportions = getCumulativeProportions(population, totalFitness);
     currentBest = DrawBest(population, cities, generation, Y_MAX);
     bestDistanceGraph(generation + 1,1:2)=[generation; currentBest];
+    averageDistanceGraph(generation + 1,1:2)=[generation; averageFitness];
     
     offspring = crossover(population, cumulativeProportions);
-    offspring = mutation(population, MUTATION_CHANCE, N_CITIES);
-    [offspring, totalDistance, averageDistance] = calculateDistance(offspring, cities);
-    population = cat(1, population, offspring);
+    offspring = mutation(cities, offspring, MUTATION_CHANCE, N_CITIES, (3 + ANNEALING_ENABLE), ...
+                         ANNEALING_TEMPERATURE, ANNEALING_COOLING_RATE, ANNEALING_STOP_CRITERION);
+    [offspring, totalFitness, averageFitness] = calculateDistance(offspring, cities);
+    population = cat(2, population, offspring);
     
     population = selectParents(population, N_POP);
     
@@ -57,12 +67,18 @@ while noChangeCounter<MAX_NOREPEAT
         noChangeCounter = 0;
     end
     lastBest = currentBest;
-    
+%     figure(2)
+%     plot(bestDistanceGraph(1:generation,1), bestDistanceGraph(1:generation,2))
+%     hold on
+%     plot(averageDistanceGraph(1:generation,1), averageDistanceGraph(1:generation,2))
+%     hold off
     generation = generation + 1;
 end
 
 figure(2)
+hold on
 plot(bestDistanceGraph(:,1), bestDistanceGraph(:,2))
+plot(averageDistanceGraph(:,1), averageDistanceGraph(:,2))
 
 function currentBest = DrawBest(population, cities, generation, Y_MAX)
     bestIndividual = find([population.totalPathDistance] == min([population.totalPathDistance]));

@@ -1,10 +1,12 @@
 function cities = createCities(N_CITIES, Y_MAX, X_MAX, CITY_SIZE, NUMBER_SIZE)
     cities = repmat(struct('x',{},'y',{}), N_CITIES, 1);
-    s = get(0, 'ScreenSize');
     cityRadius= ceil(CITY_SIZE/2);
+    
+    s = get(0, 'ScreenSize');
     figure(1);
     set(gcf, 'Position', [0 40 s(3) s(4)-120], 'NumberTitle', 1);
     hold on
+    
     for i = 1:N_CITIES
         while true
             xc = randi([cityRadius X_MAX-cityRadius-1]);
@@ -18,16 +20,16 @@ function cities = createCities(N_CITIES, Y_MAX, X_MAX, CITY_SIZE, NUMBER_SIZE)
         cities(i).x = xc;
         cities(i).y = yc;
     end
-    for i = 1:N_CITIES
-        for j = i+1:N_CITIES
-            line([cities(i).x, cities(j).x],[cities(i).y, cities(j).y],'LineStyle', ':', 'LineWidth', 1, 'Color', 'red')
-        end
-    end
-    uistack(findobj(gca,'Type','Line'),'bottom');
-    pause(0);
-    delete(findall(gca, 'type', 'line'));
+    
+%     for i = 1:N_CITIES
+%         for j = i+1:N_CITIES
+%             line([cities(i).x, cities(j).x],...
+%                  [cities(i).y, cities(j).y],'LineStyle', ':', 'LineWidth', 1, 'Color', 'red')
+%         end
+%     end
+    
     cities = citiesDistance(cities, N_CITIES);
-    return
+return
 end
 
 function isColliding = checkCollision1(cities, xc, yc, CITY_SIZE)

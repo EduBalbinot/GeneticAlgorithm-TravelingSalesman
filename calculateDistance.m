@@ -5,6 +5,7 @@ function [population, totalDistance, averageDistance] = calculateDistance(popula
         for j = 1:numel(cities)-1
             distance= distance + cities(population(i).cityOrder(j)).distance(population(i).cityOrder(j+1));
         end
+        distance = distance + cities(population(i).cityOrder(1)).distance(population(i).cityOrder(numel(cities)));
         population(i).totalPathDistance = distance;
         totalDistance = totalDistance + distance;
     end
