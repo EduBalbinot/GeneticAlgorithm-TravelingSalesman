@@ -3,7 +3,9 @@ function offspring = crossover(population, cumulativeProportions)
     for i = 1:numel(population)/2
         [mother, m] = selection(population, cumulativeProportions);
         [father, f] = selection(population, cumulativeProportions);
-        while isequal(m, f)
+        hammingDistance = GetHammingDistance(mother, father);
+        while hammingDistance < numel(mother)/10
+            hammingDistance = GetHammingDistance(mother, father);
             [father, f] = selection(population, cumulativeProportions);
         end
         if rand(1)>0.5
@@ -15,6 +17,11 @@ function offspring = crossover(population, cumulativeProportions)
 return
 end
 
+function hammingDistance = GetHammingDistance(mother, father)
+    hammingDistance = 0;
+    hammingDistance = sum((mother==father)==0);
+return
+end
 function offspring = orderCrossover(offspring, mother, father, i)
         crossoverPosition1 = randi([1 numel(mother)]);
         crossoverPosition2 = randi([1 numel(mother)]);

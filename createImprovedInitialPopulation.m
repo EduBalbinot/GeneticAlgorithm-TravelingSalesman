@@ -1,10 +1,10 @@
 function population = createImprovedInitialPopulation(cities, N_POP, N_CITIES)
     population = repmat(struct('cityOrder',[]), 1, N_POP);
     for i = 1:N_POP
-        switch randi([1 5])
+        switch randi([1 50])
             case 1
                 population(i).cityOrder = nearestNeighborAlgorithm(cities, N_CITIES);
-            case num2cell(2:5)
+            case num2cell(2:50)
                 population(i).cityOrder = randperm(N_CITIES);            
         end
     end
